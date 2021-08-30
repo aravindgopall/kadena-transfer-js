@@ -14,8 +14,10 @@ const {
   printCurlCmd,
   exit,
 } = require("../util/verify.js");
+const crypto = require('crypto');
+const Pact = require("pact-lang-api");
 
-const { transferCreate } = require("../util/create-cmd.js");
+const { transfer, transferCreate } = require("../util/create-cmd.js");
 
 const main = async () => {
  let networkId, chainId, senderAcct, receiverAcct, receiverPublicKey, amount, senderPublicKey, senderPrivateKey;
@@ -26,20 +28,25 @@ const main = async () => {
 async function runOfflineTransferCreate(networkId, chainId, senderAcct, receiverAcct, receiverPublicKey, amount, senderPublicKey, senderPrivateKey) {
   networkId = await verifyNetworkId(networkId);
   chainId = await verifyChainId(chainId);
-  const host = apiHost("{YOUR_NODE}", networkId, chainId)
+  const host = apiHost("localhost:9999", networkId, chainId)
   senderAcct = await verifySenderAcctOffline(senderAcct);
-  receiverAcct = await verifyReceiverAcctOffline(receiverAcct);
-  receiverPublicKey = await verifyReceiverPublicKeyOffline(receiverAcct, receiverPublicKey);
-  amount = await verifyAmountOffline(senderAcct, receiverAcct, amount);
+  //receiverAcct = await verifyReceiverAcctOffline(receiverAcct);
+  //receiverPublicKey = await verifyReceiverPublicKeyOffline(receiverAcct, receiverPublicKey);
+  //amount = await verifyAmountOffline(senderAcct, receiverAcct, amount);
   const receiverGuard = {
     pred: 'keys-all',
     keys: [receiverPublicKey]
   }
-  await askReview(chainId, senderAcct, receiverAcct, amount, receiverGuard);
   senderPublicKey =  await verifySenderPublicKey(senderAcct, senderPublicKey);
   senderPrivateKey = await verifySenderPrivateKey(senderAcct, senderPrivateKey);
-  printCurlCmd(transferCreate.send(senderAcct, senderPublicKey, senderPrivateKey, receiverAcct, receiverPublicKey, amount, chainId, networkId), host)
-  console.log("Replace {YOUR_NODE} with the node server you'll send to")
+  //await askReview(chainId, senderAcct, receiverAcct, amount, receiverGuard);
+  //while(True){
+    receiverAcct = crypto.randomBytes(32).toString("hex");
+    receiverPublicKey = receiverAcct;
+    var res = await transferCreate.fetch(senderAcct, senderPublicKey, senderPrivateKey, receiverAcct, receiverPublicKey, 0.0001, chainId, networkId, host);
+  console.log(res);
+    //printCurlCmd(transfer.send(senderAcct, senderPublicKey, senderPrivateKey, receiverAcct, 0.0001, chainId, networkId), host);
+  //}
 }
 
 main();

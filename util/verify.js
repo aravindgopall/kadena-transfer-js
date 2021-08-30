@@ -1,7 +1,7 @@
 const Pact = require("pact-lang-api");
 const fetch = require("node-fetch")
 const readline = require('readline');
-const apiHost = (node, networkId, chainId) => `https://${node}/chainweb/0.0/${networkId}/chain/${chainId}/pact`;
+const apiHost = (node, networkId, chainId) => `http://${node}/chainweb/0.0/${networkId}/chain/${chainId}/pact`;
 const stdin = process.openStdin()
 const chains = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
 const creationTime = () => Math.round((new Date).getTime()/1000)-15;

@@ -66,6 +66,19 @@ function createTransferCreateCmd(sender, senderPubKey, senderSecretKey, receiver
   else return Pact.simple.exec.createCommand(obj.keyPairs, undefined, obj.transferCreateCode, obj.envData, obj.meta, networkId)
 }
 
+function sendAndFetch(sender, senderPubKey, senderSecretKey, receiver, receiverPubKey, amount, chainId, networkId, host){
+  const senderKp = {publicKey: senderPubKey, secretKey: senderSecretKey}
+  const obj = createTransferObj(sender, senderKp, receiver, receiverPubKey, amount, chainId);
+  const cmds = [
+                  {
+                     keyPairs: obj.keyPairs,
+                     pactCode: obj.transferCode
+                  }
+  ]
+  if (!obj.envData) console.log("ERR - You don't have receiver guard")
+  else return Pact.fetch.send(cmds, host);
+}
+
 function createTransferCreateLocalCmd(sender, senderPubKey, senderSecretKey, receiver, receiverPubKey, amount, chainId){
   const senderKp = {publicKey: senderPubKey, secretKey: senderSecretKey}
   const obj = createTransferObj(sender, senderKp, receiver, receiverPubKey, amount, chainId);
@@ -112,7 +125,8 @@ module.exports = {
   },
   transferCreate: {
     send: createTransferCreateCmd,
-    local: createTransferCreateLocalCmd
+    local: createTransferCreateLocalCmd,
+    fetch: sendAndFetch
   },
   transferCrosschain: {
     stepOne: createTransferCrossChainCmd,
